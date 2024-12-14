@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { Bindings, Variables } from "./config";
 import { authenticateClient } from "./index.middleware";
 import { v2 as cloudinary } from "cloudinary";
+import { PrismaClient } from "@prisma/client/edge";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
 const app = new Hono<{
   Bindings: Bindings;
@@ -46,6 +48,13 @@ app.get("/generate-signed-url/:messageId", authenticateClient, (c) => {
     console.log("Error in generating signed url: ", error.message);
     return c.json({ message: "Internal server error." }, 500);
   }
+});
+
+app.post("/wh/image/:whsecret", (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate());
+  return c.text("Success");
 });
 
 export default app;
