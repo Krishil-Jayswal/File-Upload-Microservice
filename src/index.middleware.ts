@@ -24,3 +24,16 @@ export const authenticateClient = createMiddleware(async (c, next) => {
     return c.json({ message: "Internal server error." }, 500);
   }
 });
+
+export const authenticateWebhook = createMiddleware(async (c, next) => {
+  try {
+    const whsecret = c.req.param("whsecret");
+    if (c.env.WH_SECRET !== whsecret) {
+      return c.json({ messsage: "Invalid data." }, 400);
+    }
+    await next();
+  } catch (error: any) {
+    console.log("Error in authenticateWebhook middleware: " + error.message);
+    return c.json({ message: "Internal server error." }, 500);
+  }
+});
