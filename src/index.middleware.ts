@@ -1,11 +1,10 @@
-import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { verify } from "hono/utils/jwt/jwt";
 
 export const authenticateClient = createMiddleware(async (c, next) => {
   try {
     // Fetch token
-    const token = getCookie(c, "jwt");
+    const token = c.req.header("Authorization");
     // Checking presence of token
     if (!token) {
       return c.json({ message: "Unauthorized - No token provided." });
@@ -27,10 +26,13 @@ export const authenticateClient = createMiddleware(async (c, next) => {
 
 export const authenticateWebhook = createMiddleware(async (c, next) => {
   try {
+    // Fetch the webhook secret
     const whsecret = c.req.param("whsecret");
+    // Validate the webhook secret
     if (c.env.WH_SECRET !== whsecret) {
       return c.json({ messsage: "Invalid data." }, 400);
     }
+    // next
     await next();
   } catch (error: any) {
     console.log("Error in authenticateWebhook middleware: " + error.message);

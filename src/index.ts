@@ -50,6 +50,7 @@ app.get("/generate-signed-url/:messageId", authenticateClient, (c) => {
   }
 });
 
+// TODO: Publish this event to redis
 app.post("/wh/image/:whsecret", authenticateWebhook, async (c) => {
   // Fetching the necessary data
   const {
